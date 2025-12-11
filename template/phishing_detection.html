@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phishing Detection - DLP Platform</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Socket.IO -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+
+    <style>
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .gradient-bg {
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+        }
+
+        .card-glass {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-gradient {
+            background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+        }
+
+        .btn-gradient:hover {
+            background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);
+        }
+
+        .email-card {
+            transition: all 0.3s ease;
+        }
+
+        .email-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .badge-safe {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+
+        .badge-phishing {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+
+        .badge-review {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        }
+
+        .loading-spinner {
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top: 3px solid #f97316;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .pulse-dot {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+        }
+    </style>
+</head>
+
+<body class="gradient-bg min-h-screen text-white">
+
+    <!-- Navigation -->
+    <nav class="fixed w-full top-0 z-50 bg-gray-900/80 backdrop-blur-lg border-b border-gray-800">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <a href="/" class="flex items-center space-x-3">
+                        <div
+                            class="w-10 h-10 bg-gradient-to-br from-orange-500 to-red-600 rounded-lg flex items-center justify-center">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z">
+                                </path>
+                            </svg>
+                        </div>
+                        <span
+                            class="text-xl font-bold bg-gradient-to-r from-orange-400 to-red-500 bg-clip-text text-transparent">
+                            Phishing Detection
+                        </span>
+                    </a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="/"
+                        class="px-4 py-2 text-gray-300 hover:text-white transition-colors duration-200 flex items-center space-x-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6">
+                            </path>
+                        </svg>
+                        <span>Home</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mx-auto px-6 pt-24 pb-12">
+        <!-- Header -->
+        <div class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-bold mb-4">
+                <span class="bg-gradient-to-r from-orange-400 to-red-500 bg-clip-text text-transparent">
+                    Email Phishing Detection
+                </span>
+            </h1>
+            <p class="text-gray-400 text-lg max-w-2xl mx-auto">
+                Connect your Gmail or Outlook account to scan and classify emails for phishing threats using AI
+            </p>
+        </div>
+
+        <!-- Connection Options -->
+        <div class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto mb-12">
+            <!-- Gmail Card -->
+            <div class="card-glass rounded-2xl p-8 text-center">
+                <div
+                    class="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-red-500 to-red-600 rounded-2xl flex items-center justify-center">
+                    <svg class="w-10 h-10 text-white" viewBox="0 0 24 24" fill="currentColor">
+                        <path
+                            d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.91 1.528-1.145C21.69 2.28 24 3.434 24 5.457z" />
+                    </svg>
+                </div>
+                <h3 class="text-2xl font-bold mb-4">Gmail</h3>
+                <p class="text-gray-400 mb-6">Connect with your Google account to scan Gmail emails</p>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Number of emails to fetch</label>
+                        <input type="number" id="gmail-email-count" value="10" min="1" max="500"
+                            class="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                    </div>
+                    <button onclick="connectGmail()"
+                        class="w-full py-3 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 rounded-xl font-semibold transition-all duration-200 flex items-center justify-center space-x-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1">
+                            </path>
+                        </svg>
+                        <span>Connect Gmail</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Outlook Card -->
+            <div class="card-glass rounded-2xl p-8 text-center">
+                <div
+                    class="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center">
+                    <svg class="w-10 h-10 text-white" viewBox="0 0 24 24" fill="currentColor">
+                        <path
+                            d="M24 7.387v10.478c0 .23-.08.424-.238.576-.158.154-.352.23-.58.23h-8.547v-6.959l1.6 1.229c.102.086.225.128.372.128.14 0 .26-.04.363-.119l.118-.105 4.058-3.51c.118-.098.178-.22.178-.366 0-.22-.16-.33-.48-.33h-5.21V5.878h8.128c.228 0 .422.076.58.228.159.153.238.347.238.576v.705zM14.635 18.67v-7.642L7.22 17.484l7.415 1.186zm-14.398.56c-.158-.156-.237-.35-.237-.576V5.34c0-.228.08-.421.237-.58.158-.158.352-.237.58-.237h12.9c.228 0 .422.08.58.238.157.158.236.35.236.58v2.537H9.99c-.76 0-1.412.27-1.96.81-.546.54-.82 1.192-.82 1.956v6.962H.817c-.228 0-.422-.08-.58-.237z" />
+                    </svg>
+                </div>
+                <h3 class="text-2xl font-bold mb-4">Outlook</h3>
+                <p class="text-gray-400 mb-6">Connect with your Microsoft account to scan Outlook emails</p>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Number of emails to fetch</label>
+                        <input type="number" id="outlook-email-count" value="10" min="1" max="500"
+                            class="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                    </div>
+                    <button onclick="connectOutlook()"
+                        class="w-full py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 rounded-xl font-semibold transition-all duration-200 flex items-center justify-center space-x-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1">
+                            </path>
+                        </svg>
+                        <span>Connect Outlook</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Manual Email Analysis -->
+        <div class="card-glass rounded-2xl p-8 max-w-4xl mx-auto mb-12">
+            <h3 class="text-2xl font-bold mb-6 text-center">
+                <span class="bg-gradient-to-r from-orange-400 to-yellow-400 bg-clip-text text-transparent">
+                    Manual Email Analysis
+                </span>
+            </h3>
+            <p class="text-gray-400 text-center mb-6">Paste email content to analyze for phishing threats</p>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Email Subject</label>
+                    <input type="text" id="manual-subject" placeholder="Enter email subject..."
+                        class="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Sender Email</label>
+                    <input type="email" id="manual-sender" placeholder="sender@example.com"
+                        class="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Email Body</label>
+                    <textarea id="manual-body" rows="6" placeholder="Paste the email body content here..."
+                        class="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none"></textarea>
+                </div>
+                <button onclick="analyzeManualEmail()"
+                    class="w-full py-4 btn-gradient rounded-xl font-semibold transition-all duration-200 flex items-center justify-center space-x-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4">
+                        </path>
+                    </svg>
+                    <span>Analyze Email</span>
+                </button>
+            </div>
+
+            <!-- Analysis Result -->
+            <div id="analysis-result" class="mt-6 hidden">
+                <div class="p-6 rounded-xl bg-gray-800/50 border border-gray-700">
+                    <h4 class="text-lg font-semibold mb-4">Analysis Result</h4>
+                    <div id="result-content"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Email Dashboard Section -->
+        <div id="email-dashboard" class="hidden">
+            <!-- Stats -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+                <div class="card-glass rounded-xl p-6 text-center">
+                    <div class="text-3xl font-bold text-white mb-2" id="stat-total">0</div>
+                    <div class="text-gray-400 text-sm">Total Emails</div>
+                </div>
+                <div class="card-glass rounded-xl p-6 text-center">
+                    <div class="text-3xl font-bold text-green-400 mb-2" id="stat-safe">0</div>
+                    <div class="text-gray-400 text-sm">Safe</div>
+                </div>
+                <div class="card-glass rounded-xl p-6 text-center">
+                    <div class="text-3xl font-bold text-red-400 mb-2" id="stat-phishing">0</div>
+                    <div class="text-gray-400 text-sm">Phishing</div>
+                </div>
+                <div class="card-glass rounded-xl p-6 text-center">
+                    <div class="text-3xl font-bold text-yellow-400 mb-2" id="stat-review">0</div>
+                    <div class="text-gray-400 text-sm">Needs Review</div>
+                </div>
+            </div>
+
+            <!-- Filter -->
+            <div class="card-glass rounded-xl p-4 mb-8 flex flex-wrap items-center justify-between gap-4">
+                <div class="flex items-center space-x-4">
+                    <label class="text-gray-300 font-medium">Filter:</label>
+                    <select id="email-filter"
+                        class="px-4 py-2 bg-gray-800/50 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-500">
+                        <option value="all">All Emails</option>
+                        <option value="safe">Safe</option>
+                        <option value="phishing">Phishing</option>
+                        <option value="review">Needs Review</option>
+                    </select>
+                </div>
+                <button onclick="refreshEmails()"
+                    class="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors flex items-center space-x-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
+                        </path>
+                    </svg>
+                    <span>Refresh</span>
+                </button>
+            </div>
+
+            <!-- Email List -->
+            <div id="email-list" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Email cards will be rendered here -->
+            </div>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loading-state" class="hidden text-center py-12">
+            <div class="loading-spinner mx-auto mb-4"></div>
+            <p class="text-gray-400">Analyzing emails...</p>
+        </div>
+
+        <!-- Features Section -->
+        <div class="mt-16">
+            <h2 class="text-2xl font-bold text-center mb-8">Detection Capabilities</h2>
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="card-glass rounded-xl p-6 text-center">
+                    <div
+                        class="w-14 h-14 mx-auto mb-4 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center">
+                        <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z">
+                            </path>
+                        </svg>
+                    </div>
+                    <h3 class="font-semibold mb-2">AI Body Analysis</h3>
+                    <p class="text-gray-400 text-sm">RoBERTa transformer model for email content classification</p>
+                </div>
+                <div class="card-glass rounded-xl p-6 text-center">
+                    <div
+                        class="w-14 h-14 mx-auto mb-4 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center">
+                        <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1">
+                            </path>
+                        </svg>
+                    </div>
+                    <h3 class="font-semibold mb-2">URL Analysis</h3>
+                    <p class="text-gray-400 text-sm">Domain reputation checking against 1M+ trusted domains</p>
+                </div>
+                <div class="card-glass rounded-xl p-6 text-center">
+                    <div
+                        class="w-14 h-14 mx-auto mb-4 bg-gradient-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center">
+                        <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                            </path>
+                        </svg>
+                    </div>
+                    <h3 class="font-semibold mb-2">YARA Scanning</h3>
+                    <p class="text-gray-400 text-sm">Malware signature detection for email attachments</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const socket = io();
+
+        // Connect Gmail
+        function connectGmail() {
+            const numEmails = document.getElementById('gmail-email-count').value;
+            window.location.href = `/phishing/set-email-count?count=${numEmails}&provider=gmail`;
+        }
+
+        // Connect Outlook
+        function connectOutlook() {
+            const numEmails = document.getElementById('outlook-email-count').value;
+            window.location.href = `/phishing/set-email-count?count=${numEmails}&provider=outlook`;
+        }
+
+        // Analyze manual email
+        async function analyzeManualEmail() {
+            const subject = document.getElementById('manual-subject').value;
+            const sender = document.getElementById('manual-sender').value;
+            const body = document.getElementById('manual-body').value;
+
+            if (!body.trim()) {
+                alert('Please enter email body content');
+                return;
+            }
+
+            const resultDiv = document.getElementById('analysis-result');
+            const resultContent = document.getElementById('result-content');
+            resultDiv.classList.remove('hidden');
+            resultContent.innerHTML = '<div class="flex items-center justify-center"><div class="loading-spinner"></div></div>';
+
+            try {
+                const response = await fetch('/api/phishing/analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ subject, sender, body })
+                });
+
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    const result = data.result;
+                    const badgeClass = result.category.toLowerCase() === 'safe' ? 'badge-safe' :
+                        result.category.toLowerCase() === 'phishing' ? 'badge-phishing' : 'badge-review';
+
+                    resultContent.innerHTML = `
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="px-4 py-2 rounded-full text-white font-semibold ${badgeClass}">
+                                ${result.category}
+                            </span>
+                            <span class="text-gray-400">Confidence: ${result.confidence.toFixed(1)}%</span>
+                        </div>
+                        <div class="space-y-2">
+                            ${result.explanation && result.explanation.length > 0 ?
+                            `<div class="text-sm">
+                                    <span class="text-gray-400">Contributing factors:</span>
+                                    <ul class="mt-2 space-y-1">
+                                        ${result.explanation.map(([name, value]) =>
+                                `<li class="flex justify-between">
+                                                <span class="text-gray-300">${name}</span>
+                                                <span class="text-orange-400">${(value * 100).toFixed(1)}%</span>
+                                            </li>`
+                            ).join('')}
+                                    </ul>
+                                </div>` :
+                            '<p class="text-gray-400 text-sm">No specific threat indicators detected</p>'
+                        }
+                        </div>
+                        ${result.needs_review ?
+                            '<p class="mt-4 text-yellow-400 text-sm">⚠️ This email has been flagged for manual review</p>' : ''
+                        }
+                    `;
+                } else {
+                    resultContent.innerHTML = `<p class="text-red-400">Error: ${data.message}</p>`;
+                }
+            } catch (error) {
+                resultContent.innerHTML = `<p class="text-red-400">Error analyzing email: ${error.message}</p>`;
+            }
+        }
+
+        // Filter emails
+        document.getElementById('email-filter')?.addEventListener('change', function () {
+            const filter = this.value;
+            const cards = document.querySelectorAll('.email-card');
+
+            cards.forEach(card => {
+                const category = card.dataset.category;
+                const needsReview = card.dataset.needsReview === 'true';
+
+                if (filter === 'all') {
+                    card.style.display = 'block';
+                } else if (filter === 'review') {
+                    card.style.display = needsReview ? 'block' : 'none';
+                } else {
+                    card.style.display = category.toLowerCase() === filter ? 'block' : 'none';
+                }
+            });
+        });
+
+        // Refresh emails
+        function refreshEmails() {
+            location.reload();
+        }
+
+        // Socket events
+        socket.on('email_classified', function (data) {
+            console.log('Email classified:', data);
+            // Update UI with new email classification
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DLP Platform - Advanced Data Loss Prevention</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- AOS Library for Scroll Animations -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+
+    <style>
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            overflow-x: hidden;
+        }
+
+        .gradient-bg {
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            position: relative;
+        }
+
+        .gradient-bg::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.3), transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(99, 102, 241, 0.3), transparent 50%);
+            animation: pulse 8s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.8;
+            }
+        }
+
+        .card-hover {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .card-hover:hover {
+            transform: translateY(-12px) scale(1.02);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .feature-icon {
+            transition: all 0.3s ease;
+        }
+
+        .feature-icon:hover {
+            transform: rotate(360deg) scale(1.1);
+        }
+    </style>
+</head>
+
+<body class="bg-gray-900 text-white">
+
+    <!-- Navigation -->
+    <nav class="fixed w-full top-0 z-50 bg-gray-900/80 backdrop-blur-lg border-b border-gray-800">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div
+                        class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z">
+                            </path>
+                        </svg>
+                    </div>
+                    <span
+                        class="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">DLP
+                        Platform</span>
+                </div>
+                <a href="/anomaly-detection"
+                    class="px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg font-semibold hover:shadow-lg hover:shadow-purple-500/50 transition duration-300">
+                    Launch Dashboard
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="gradient-bg min-h-screen flex items-center justify-center relative pt-20">
+        <div class="container mx-auto px-6 relative z-10">
+            <div class="text-center max-w-4xl mx-auto">
+
+                <div data-aos="fade-up" data-aos-duration="800">
+                    <div
+                        class="inline-flex items-center space-x-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full mb-8 border border-white/20">
+                        <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+                        <span class="text-sm font-medium">AI-Powered Security Suite</span>
+                    </div>
+                </div>
+
+                <h1 class="text-6xl md:text-7xl font-black mb-6 leading-tight" data-aos="fade-up" data-aos-delay="100">
+                    Protect Your
+                    <span
+                        class="block bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 bg-clip-text text-transparent">
+                        Data & Network
+                    </span>
+                </h1>
+
+                <p class="text-xl md:text-2xl text-gray-300 mb-10 leading-relaxed" data-aos="fade-up"
+                    data-aos-delay="200">
+                    Advanced ML-powered platform combining real-time network anomaly detection and intelligent data
+                    classification to safeguard your organization
+                </p>
+
+                <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16" data-aos="fade-up"
+                    data-aos-delay="300">
+                    <a href="#features"
+                        class="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl font-semibold text-lg hover:shadow-2xl hover:shadow-purple-500/50 transition duration-300 flex items-center space-x-2">
+                        <span>Explore Features</span>
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7">
+                            </path>
+                        </svg>
+                    </a>
+                    <a href="/anomaly-detection"
+                        class="px-8 py-4 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl font-semibold text-lg hover:bg-white/20 transition duration-300">
+                        View Demo
+                    </a>
+                </div>
+
+                <!-- Stats -->
+                <div class="grid grid-cols-3 gap-8 max-w-3xl mx-auto" data-aos="fade-up" data-aos-delay="400">
+                    <div class="text-center">
+                        <div
+                            class="text-4xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
+                            3</div>
+                        <div class="text-sm text-gray-400 mt-1">AI Models</div>
+                    </div>
+                    <div class="text-center">
+                        <div
+                            class="text-4xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                            95%+</div>
+                        <div class="text-sm text-gray-400 mt-1">Accuracy</div>
+                    </div>
+                    <div class="text-center">
+                        <div
+                            class="text-4xl font-bold bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">
+                            24/7</div>
+                        <div class="text-sm text-gray-400 mt-1">Protection</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scroll Indicator -->
+        <div class="absolute bottom-1 left-1/2 transform -translate-x-1/2 animate-bounce">
+            <svg class="w-6 h-6 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="py-20 bg-gray-900">
+        <div class="container mx-auto px-6">
+
+            <div class="text-center mb-16" data-aos="fade-up">
+                <h2 class="text-4xl md:text-5xl font-bold mb-4">Powerful Security Solutions</h2>
+                <p class="text-xl text-gray-400 max-w-2xl mx-auto">Two cutting-edge AI systems working in harmony to
+                    protect your infrastructure</p>
+            </div>
+
+            <!-- Main Product Cards -->
+            <div class="grid md:grid-cols-2 gap-8 mb-20">
+
+                <!-- Anomaly Detection Card -->
+                <div class="relative group card-hover" data-aos="fade-right" data-aos-delay="100">
+                    <div
+                        class="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-8 border border-gray-700 h-full">
+                        <div
+                            class="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center mb-6 feature-icon">
+                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                            </svg>
+                        </div>
+
+                        <h3 class="text-2xl font-bold mb-3">Network Anomaly Detection</h3>
+                        <p class="text-gray-400 mb-6 leading-relaxed">
+                            Real-time traffic analysis powered by Multi-Layer Perceptron neural networks. Detects
+                            intrusions and suspicious patterns instantly.
+                        </p>
+
+                        <div class="space-y-3 mb-8">
+                            <div class="flex items-center text-sm text-gray-300">
+                                <svg class="w-5 h-5 text-green-400 mr-3 flex-shrink-0" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                Live WebSocket monitoring
+                            </div>
+                            <div class="flex items-center text-sm text-gray-300">
+                                <svg class="w-5 h-5 text-green-400 mr-3 flex-shrink-0" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                MLP neural network engine
+                            </div>
+                            <div class="flex items-center text-sm text-gray-300">
+                                <svg class="w-5 h-5 text-green-400 mr-3 flex-shrink-0" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                Interactive analytics dashboard
+                            </div>
+                        </div>
+
+                        <a href="/anomaly-detection"
+                            class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 rounded-xl font-semibold hover:shadow-lg hover:shadow-green-500/50 transition duration-300">
+                            <span>Launch Monitor</span>
+                            <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Data Classification Card -->
+                <div class="relative group card-hover" data-aos="fade-left" data-aos-delay="200">
+                    <div
+                        class="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-8 border border-gray-700 h-full">
+                        <div
+                            class="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center mb-6 feature-icon">
+                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                                </path>
+                            </svg>
+                        </div>
+
+                        <h3 class="text-2xl font-bold mb-3">Intelligent Data Classification</h3>
+                        <p class="text-gray-400 mb-6 leading-relaxed">
+                            Advanced NLP with RoBERTa transformers to scan and classify sensitive information across
+                            multiple file formats.
+                        </p>
+
+                        <div class="space-y-3 mb-8">
+                            <div class="flex items-center text-sm text-gray-300">
+                                <svg class="w-5 h-5 text-blue-400 mr-3 flex-shrink-0" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                Multi-format support (PDF, DOCX, CSV, TXT)
+                            </div>
+                            <div class="flex items-center text-sm text-gray-300">
+                                <svg class="w-5 h-5 text-blue-400 mr-3 flex-shrink-0" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                RoBERTa transformer model
+                            </div>
+                            <div class="flex items-center text-sm text-gray-300">
+                                <svg class="w-5 h-5 text-blue-400 mr-3 flex-shrink-0" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                Batch directory scanning
+                            </div>
+                        </div>
+
+                        <a href="/data-classification"
+                            class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl font-semibold hover:shadow-lg hover:shadow-blue-500/50 transition duration-300">
+                            <span>Start Scanning</span>
+                            <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Phishing Detection Card - Full Width -->
+            <div class="mt-8 mb-16" data-aos="fade-up" data-aos-delay="300">
+                <div class="relative group card-hover">
+                    <div
+                        class="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-8 border border-gray-700 h-full">
+                        <div class="flex flex-col md:flex-row items-center md:items-start gap-8">
+                            <div
+                                class="w-20 h-20 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl flex items-center justify-center flex-shrink-0 feature-icon">
+                                <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z">
+                                    </path>
+                                </svg>
+                            </div>
+
+                            <div class="flex-grow text-center md:text-left">
+                                <h3 class="text-2xl font-bold mb-3">Email Phishing Detection</h3>
+                                <p class="text-gray-400 mb-6 leading-relaxed max-w-2xl">
+                                    Multi-layered AI security for email threats. Combines RoBERTa transformer for
+                                    content analysis,
+                                    URL reputation checking against 1M+ domains, and YARA signature scanning for malware
+                                    detection.
+                                </p>
+
+                                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                                    <div class="flex items-center text-sm text-gray-300">
+                                        <svg class="w-5 h-5 text-orange-400 mr-2 flex-shrink-0" fill="none"
+                                            stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M5 13l4 4L19 7"></path>
+                                        </svg>
+                                        AI Body Analysis
+                                    </div>
+                                    <div class="flex items-center text-sm text-gray-300">
+                                        <svg class="w-5 h-5 text-orange-400 mr-2 flex-shrink-0" fill="none"
+                                            stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M5 13l4 4L19 7"></path>
+                                        </svg>
+                                        URL Reputation
+                                    </div>
+                                    <div class="flex items-center text-sm text-gray-300">
+                                        <svg class="w-5 h-5 text-orange-400 mr-2 flex-shrink-0" fill="none"
+                                            stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M5 13l4 4L19 7"></path>
+                                        </svg>
+                                        YARA Malware Scan
+                                    </div>
+                                    <div class="flex items-center text-sm text-gray-300">
+                                        <svg class="w-5 h-5 text-orange-400 mr-2 flex-shrink-0" fill="none"
+                                            stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M5 13l4 4L19 7"></path>
+                                        </svg>
+                                        Gmail & Outlook
+                                    </div>
+                                </div>
+
+                                <a href="/phishing-detection"
+                                    class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-orange-600 to-red-600 rounded-xl font-semibold hover:shadow-lg hover:shadow-orange-500/50 transition duration-300">
+                                    <span>Detect Phishing</span>
+                                    <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                                    </svg>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section Divider -->
+            <div class="flex items-center justify-center mb-12" data-aos="fade-up">
+                <div class="h-px bg-gradient-to-r from-transparent via-gray-600 to-transparent w-full max-w-md"></div>
+                <div class="px-6 flex-shrink-0">
+                    <span class="text-sm font-semibold text-gray-500 uppercase tracking-wider">Key Features</span>
+                </div>
+                <div class="h-px bg-gradient-to-r from-transparent via-gray-600 to-transparent w-full max-w-md"></div>
+            </div>
+
+            <!-- Additional Features Grid -->
+            <div class="grid md:grid-cols-3 gap-8" data-aos="fade-up" data-aos-delay="100">
+
+                <div
+                    class="group bg-gray-800/50 backdrop-blur-sm rounded-2xl p-8 border border-gray-700/50 hover:border-blue-500/50 hover:bg-gray-800/80 transition-all duration-300 card-hover">
+                    <div
+                        class="w-14 h-14 bg-gradient-to-br from-blue-500/20 to-blue-600/20 rounded-xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-300">
+                        <svg class="w-7 h-7 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                    </div>
+                    <h4 class="text-lg font-bold mb-3 text-white">Real-Time Processing</h4>
+                    <p class="text-gray-400 leading-relaxed">Instant threat detection with sub-second response times.
+                        Live monitoring of all activities.</p>
+                </div>
+
+                <div
+                    class="group bg-gray-800/50 backdrop-blur-sm rounded-2xl p-8 border border-gray-700/50 hover:border-purple-500/50 hover:bg-gray-800/80 transition-all duration-300 card-hover">
+                    <div
+                        class="w-14 h-14 bg-gradient-to-br from-purple-500/20 to-purple-600/20 rounded-xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-300">
+                        <svg class="w-7 h-7 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
+                            </path>
+                        </svg>
+                    </div>
+                    <h4 class="text-lg font-bold mb-3 text-white">Detailed Analytics</h4>
+                    <p class="text-gray-400 leading-relaxed">Comprehensive insights with interactive visualizations and
+                        detailed reporting dashboards.</p>
+                </div>
+
+                <div
+                    class="group bg-gray-800/50 backdrop-blur-sm rounded-2xl p-8 border border-gray-700/50 hover:border-green-500/50 hover:bg-gray-800/80 transition-all duration-300 card-hover">
+                    <div
+                        class="w-14 h-14 bg-gradient-to-br from-green-500/20 to-green-600/20 rounded-xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-300">
+                        <svg class="w-7 h-7 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z">
+                            </path>
+                        </svg>
+                    </div>
+                    <h4 class="text-lg font-bold mb-3 text-white">Enterprise Security</h4>
+                    <p class="text-gray-400 leading-relaxed">Military-grade protection for your sensitive data with
+                        advanced encryption standards.</p>
+                </div>
+
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-950 py-10 border-t border-gray-800">
+        <div class="container mx-auto px-6">
+            <div class="flex flex-col md:flex-row items-center justify-between">
+                <div class="mb-4 md:mb-0">
+                    <div class="flex items-center space-x-3 mb-2">
+                        <div
+                            class="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z">
+                                </path>
+                            </svg>
+                        </div>
+                        <span class="text-lg font-bold">DLP Platform</span>
+                    </div>
+                    <p class="text-sm text-gray-500">Advanced Data Loss Prevention</p>
+                </div>
+                <div class="text-center md:text-right">
+                    <p class="text-sm text-gray-500">© 2024 Purezza Technologies. All rights reserved.</p>
+                    <p class="text-xs text-gray-600 mt-1">Powered by AI & Machine Learning</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Initialize AOS
+        AOS.init({
+            duration: 1000,
+            once: true,
+            offset: 100
+        });
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+
+</body>
+
+</html>

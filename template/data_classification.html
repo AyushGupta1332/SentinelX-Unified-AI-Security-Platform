@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Classification Scanner - DLP System</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Socket.IO Client -->
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+
+    <style>
+        .pulse-dot {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: .5;
+            }
+        }
+
+        .slide-in {
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .progress-bar {
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-900 text-gray-100">
+
+    <!-- Header -->
+    <header class="bg-gray-800 shadow-lg border-b border-gray-700">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between flex-wrap gap-4">
+                <div class="flex items-center space-x-4">
+                    <a href="/" class="text-gray-400 hover:text-white transition">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                        </svg>
+                    </a>
+                    <div class="bg-gradient-to-r from-blue-600 to-purple-600 p-3 rounded-lg">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                            </path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-bold text-white">Data Classification Scanner</h1>
+                        <p class="text-sm text-gray-400">Sensitive Data Detection with RoBERTa AI</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <div id="statusIndicator" class="flex items-center space-x-2">
+                        <div class="w-3 h-3 bg-gray-500 rounded-full"></div>
+                        <span class="text-sm text-gray-400">Idle</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-6 py-8">
+
+        <!-- Scanner Control Panel -->
+        <div class="bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-700 mb-8">
+            <h2 class="text-xl font-bold text-white mb-4 flex items-center">
+                <svg class="w-6 h-6 mr-2 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+                Scan Configuration
+            </h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <div class="md:col-span-2">
+                    <label class="block text-gray-400 text-sm font-medium mb-2">Directory Path</label>
+                    <input type="text" id="directoryInput" placeholder="C:\Documents\ToScan"
+                        class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition" />
+                </div>
+
+                <div>
+                    <label class="block text-gray-400 text-sm font-medium mb-2">File Types</label>
+                    <select id="fileTypeSelect"
+                        class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition">
+                        <option value="all">All Supported</option>
+                        <option value="text">Text Files (.txt)</option>
+                        <option value="docs">Documents (.docx, .pdf)</option>
+                        <option value="data">Data Files (.csv, .xlsx)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-4">
+                <button id="startScanBtn"
+                    class="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 rounded-lg font-semibold transition duration-200 flex items-center space-x-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z">
+                        </path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <span>Start Scan</span>
+                </button>
+                <button id="stopScanBtn"
+                    class="bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-lg font-semibold transition duration-200 hidden flex items-center space-x-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"></path>
+                    </svg>
+                    <span>Stop Scan</span>
+                </button>
+                <button id="clearResultsBtn"
+                    class="bg-gray-700 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-semibold transition duration-200">
+                    <span>Clear Results</span>
+                </button>
+            </div>
+
+            <!-- Progress Bar -->
+            <div id="progressContainer" class="mt-4 hidden">
+                <div class="flex justify-between text-sm text-gray-400 mb-2">
+                    <span id="progressText">Scanning files...</span>
+                    <span id="progressPercentage">0%</span>
+                </div>
+                <div class="w-full bg-gray-700 rounded-full h-3 overflow-hidden">
+                    <div id="progressBar"
+                        class="progress-bar bg-gradient-to-r from-blue-500 to-purple-500 h-3 rounded-full"
+                        style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+
+            <div class="bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-700">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-400 text-sm font-medium">Total Files</p>
+                        <p id="totalFiles" class="text-3xl font-bold text-white mt-2">0</p>
+                    </div>
+                    <div class="bg-blue-600 bg-opacity-20 p-3 rounded-lg">
+                        <svg class="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                            </path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-700">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-400 text-sm font-medium">Sensitive</p>
+                        <p id="sensitiveCount" class="text-3xl font-bold text-red-400 mt-2">0</p>
+                    </div>
+                    <div class="bg-red-600 bg-opacity-20 p-3 rounded-lg">
+                        <svg class="w-8 h-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+                            </path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-700">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-400 text-sm font-medium">Non-Sensitive</p>
+                        <p id="nonSensitiveCount" class="text-3xl font-bold text-green-400 mt-2">0</p>
+                    </div>
+                    <div class="bg-green-600 bg-opacity-20 p-3 rounded-lg">
+                        <svg class="w-8 h-8 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-700">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-400 text-sm font-medium">Risk Level</p>
+                        <p id="riskLevel" class="text-3xl font-bold text-yellow-400 mt-2">Low</p>
+                    </div>
+                    <div class="bg-yellow-600 bg-opacity-20 p-3 rounded-lg">
+                        <svg class="w-8 h-8 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Table -->
+        <div class="bg-gray-800 rounded-xl shadow-lg border border-gray-700">
+            <div class="px-6 py-4 border-b border-gray-700">
+                <h2 class="text-xl font-bold text-white flex items-center">
+                    <svg class="w-6 h-6 mr-2 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2">
+                        </path>
+                    </svg>
+                    Scan Results
+                </h2>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-750">
+                        <tr>
+                            <th
+                                class="px-6 py-4 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                                File Name</th>
+                            <th
+                                class="px-6 py-4 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                                Type</th>
+                            <th
+                                class="px-6 py-4 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                                Classification</th>
+                            <th
+                                class="px-6 py-4 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                                Confidence</th>
+                            <th
+                                class="px-6 py-4 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                                Size</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultsTableBody" class="divide-y divide-gray-700">
+                        <tr>
+                            <td colspan="5" class="px-6 py-12 text-center text-gray-500">
+                                <svg class="w-16 h-16 mx-auto mb-4 text-gray-600" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                                    </path>
+                                </svg>
+                                <p class="text-lg">No files scanned yet</p>
+                                <p class="text-sm mt-2">Enter a directory path and click "Start Scan"</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // Socket.IO connection
+        const socket = io('http://localhost:5000');
+
+        let scanningActive = false;
+        let results = [];
+        let stats = {
+            total: 0,
+            sensitive: 0,
+            nonSensitive: 0
+        };
+
+        // DOM elements
+        const directoryInput = document.getElementById('directoryInput');
+        const startScanBtn = document.getElementById('startScanBtn');
+        const stopScanBtn = document.getElementById('stopScanBtn');
+        const clearResultsBtn = document.getElementById('clearResultsBtn');
+        const statusIndicator = document.getElementById('statusIndicator');
+        const resultsTableBody = document.getElementById('resultsTableBody');
+        const progressContainer = document.getElementById('progressContainer');
+        const progressBar = document.getElementById('progressBar');
+        const progressText = document.getElementById('progressText');
+        const progressPercentage = document.getElementById('progressPercentage');
+
+        // Start scan
+        startScanBtn.addEventListener('click', async () => {
+            const directory = directoryInput.value.trim();
+
+            if (!directory) {
+                alert('Please enter a directory path');
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:5000/api/classify/start', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ directory: directory })
+                });
+                const data = await response.json();
+
+                if (data.status === 'started') {
+                    scanningActive = true;
+                    startScanBtn.classList.add('hidden');
+                    stopScanBtn.classList.remove('hidden');
+                    progressContainer.classList.remove('hidden');
+                    updateStatus('scanning');
+                }
+            } catch (error) {
+                console.error('Error starting scan:', error);
+                alert('Failed to start scan. Make sure the backend is running.');
+            }
+        });
+
+        // Stop scan
+        stopScanBtn.addEventListener('click', async () => {
+            try {
+                const response = await fetch('http://localhost:5000/api/classify/stop', {
+                    method: 'POST'
+                });
+                const data = await response.json();
+
+                if (data.status === 'stopped') {
+                    scanningActive = false;
+                    stopScanBtn.classList.add('hidden');
+                    startScanBtn.classList.remove('hidden');
+                    updateStatus('idle');
+                }
+            } catch (error) {
+                console.error('Error stopping scan:', error);
+            }
+        });
+
+        // Clear results
+        clearResultsBtn.addEventListener('click', () => {
+            results = [];
+            stats = { total: 0, sensitive: 0, nonSensitive: 0 };
+            updateStats();
+            resultsTableBody.innerHTML = `
+                <tr>
+                    <td colspan="5" class="px-6 py-12 text-center text-gray-500">
+                        <p class="text-lg">No files scanned yet</p>
+                    </td>
+                </tr>
+            `;
+        });
+
+        // Update status indicator
+        function updateStatus(status) {
+            if (status === 'scanning') {
+                statusIndicator.innerHTML = `
+                    <div class="w-3 h-3 bg-blue-500 rounded-full pulse-dot"></div>
+                    <span class="text-sm text-blue-400 font-semibold">Scanning...</span>
+                `;
+            } else {
+                statusIndicator.innerHTML = `
+                    <div class="w-3 h-3 bg-gray-500 rounded-full"></div>
+                    <span class="text-sm text-gray-400">Idle</span>
+                `;
+            }
+        }
+
+        // Add result to table
+        function addResult(result) {
+            if (results.length === 0) {
+                resultsTableBody.innerHTML = '';
+            }
+
+            results.push(result);
+
+            const isSensitive = result.classification === 'Sensitive';
+            const rowClass = isSensitive ? 'bg-red-900 bg-opacity-20' : 'bg-green-900 bg-opacity-10';
+            const badgeClass = isSensitive ? 'bg-red-600 text-red-100' : 'bg-green-600 text-green-100';
+
+            const row = `
+                <tr class="${rowClass} slide-in">
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-medium text-white">${result.filename}</div>
+                        <div class="text-xs text-gray-500">${result.path}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="text-sm text-gray-300">${result.file_type || 'N/A'}</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${badgeClass}">
+                            ${result.classification}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-white">${result.confidence.toFixed(1)}%</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-400">${formatFileSize(result.file_size || 0)}</div>
+                    </td>
+                </tr>
+            `;
+
+            resultsTableBody.insertAdjacentHTML('afterbegin', row);
+
+            // Update stats
+            stats.total++;
+            if (isSensitive) {
+                stats.sensitive++;
+            } else {
+                stats.nonSensitive++;
+            }
+            updateStats();
+        }
+
+        // Update statistics
+        function updateStats() {
+            document.getElementById('totalFiles').textContent = stats.total;
+            document.getElementById('sensitiveCount').textContent = stats.sensitive;
+            document.getElementById('nonSensitiveCount').textContent = stats.nonSensitive;
+
+            // Calculate risk level
+            const riskPercentage = stats.total > 0 ? (stats.sensitive / stats.total) * 100 : 0;
+            const riskLevelEl = document.getElementById('riskLevel');
+
+            if (riskPercentage > 50) {
+                riskLevelEl.textContent = 'High';
+                riskLevelEl.className = 'text-3xl font-bold text-red-400 mt-2';
+            } else if (riskPercentage > 20) {
+                riskLevelEl.textContent = 'Medium';
+                riskLevelEl.className = 'text-3xl font-bold text-yellow-400 mt-2';
+            } else {
+                riskLevelEl.textContent = 'Low';
+                riskLevelEl.className = 'text-3xl font-bold text-green-400 mt-2';
+            }
+        }
+
+        // Update progress
+        function updateProgress(data) {
+            if (data.current && data.total) {
+                const percentage = (data.current / data.total * 100).toFixed(0);
+                progressBar.style.width = percentage + '%';
+                progressPercentage.textContent = percentage + '%';
+                progressText.textContent = `Scanning ${data.current} of ${data.total} files...`;
+            }
+        }
+
+        // Format file size
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+        }
+
+        // Socket.IO event listeners
+        socket.on('classification_result', (data) => {
+            addResult(data);
+        });
+
+        socket.on('scan_progress', (data) => {
+            updateProgress(data);
+        });
+
+        socket.on('scan_complete', (data) => {
+            scanningActive = false;
+            stopScanBtn.classList.add('hidden');
+            startScanBtn.classList.remove('hidden');
+            progressContainer.classList.add('hidden');
+            updateStatus('idle');
+            alert(`Scan complete! Scanned ${data.total} files.`);
+        });
+    </script>
+
+</body>
+
+</html>

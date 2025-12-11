@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Details - DLP Platform</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Chart.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+
+    <style>
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .gradient-bg {
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+        }
+
+        .card-glass {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .badge-safe {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+
+        .badge-phishing {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+
+        .badge-review {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        }
+    </style>
+</head>
+
+<body class="gradient-bg min-h-screen text-white">
+
+    <!-- Navigation -->
+    <nav class="fixed w-full top-0 z-50 bg-gray-900/80 backdrop-blur-lg border-b border-gray-800">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <a href="/" class="flex items-center space-x-3">
+                        <div
+                            class="w-10 h-10 bg-gradient-to-br from-orange-500 to-red-600 rounded-lg flex items-center justify-center">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z">
+                                </path>
+                            </svg>
+                        </div>
+                        <span
+                            class="text-xl font-bold bg-gradient-to-r from-orange-400 to-red-500 bg-clip-text text-transparent">
+                            Email Details
+                        </span>
+                    </a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="{{ url_for('phishing_dashboard') }}"
+                        class="px-4 py-2 text-gray-300 hover:text-white transition-colors duration-200 flex items-center space-x-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                        </svg>
+                        <span>Back to Dashboard</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mx-auto px-6 pt-24 pb-12 max-w-4xl">
+
+        <!-- Email Header -->
+        <div class="card-glass rounded-2xl p-8 mb-6">
+            <div class="flex items-start justify-between mb-6">
+                <div>
+                    <h1 class="text-2xl font-bold mb-2">{{ email.subject or 'No Subject' }}</h1>
+                    <p class="text-gray-400">From: <span class="text-white">{{ email.sender }}</span></p>
+                    {% if email.receiver %}
+                    <p class="text-gray-400">To: <span class="text-white">{{ email.receiver }}</span></p>
+                    {% endif %}
+                </div>
+                <div class="text-right">
+                    {% if email.category == 'Safe' %}
+                    <span class="px-4 py-2 rounded-full text-white font-semibold badge-safe">Safe</span>
+                    {% elif email.category == 'Phishing' %}
+                    <span class="px-4 py-2 rounded-full text-white font-semibold badge-phishing">Phishing</span>
+                    {% else %}
+                    <span class="px-4 py-2 rounded-full text-white font-semibold badge-review">{{ email.category
+                        }}</span>
+                    {% endif %}
+                    <p class="text-gray-400 mt-2 text-sm">Confidence: {{ '%.1f'|format(email.confidence_score) }}%</p>
+                </div>
+            </div>
+
+            {% if email.needs_review %}
+            <div class="bg-yellow-500/20 border border-yellow-500/50 rounded-xl p-4 mb-6">
+                <div class="flex items-center space-x-2">
+                    <svg class="w-5 h-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+                        </path>
+                    </svg>
+                    <span class="text-yellow-400 font-medium">This email has been flagged for manual review</span>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Analysis Factors -->
+        {% if email.explanation %}
+        <div class="card-glass rounded-2xl p-8 mb-6">
+            <h2 class="text-xl font-bold mb-6">Analysis Factors</h2>
+
+            <div class="space-y-4">
+                {% for factor_name, factor_value in email.explanation %}
+                <div class="flex items-center justify-between">
+                    <span class="text-gray-300">{{ factor_name }}</span>
+                    <div class="flex items-center space-x-4">
+                        <div class="w-48 bg-gray-700 rounded-full h-2">
+                            <div class="h-2 rounded-full {% if factor_value > 0.5 %}bg-red-500{% elif factor_value > 0.3 %}bg-yellow-500{% else %}bg-green-500{% endif %}"
+                                style="width: {{ (factor_value * 100)|int }}%"></div>
+                        </div>
+                        <span class="text-sm text-gray-400 w-12 text-right">{{ '%.0f'|format(factor_value * 100)
+                            }}%</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Chart -->
+            <div class="mt-8">
+                <canvas id="factorsChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- URLs Section -->
+        {% if email.urls %}
+        <div class="card-glass rounded-2xl p-8 mb-6">
+            <h2 class="text-xl font-bold mb-6">URLs Found</h2>
+
+            <div class="space-y-3">
+                {% for url_info in email.urls %}
+                <div class="flex items-center justify-between p-4 bg-gray-800/50 rounded-xl">
+                    <div class="flex-1 truncate mr-4">
+                        <a href="{{ url_info.url }}" target="_blank"
+                            class="text-blue-400 hover:underline truncate block">
+                            {{ url_info.url }}
+                        </a>
+                        <span class="text-gray-500 text-sm">{{ url_info.domain }}</span>
+                    </div>
+                    {% if url_info.status == 'Safe' %}
+                    <span class="px-3 py-1 rounded-full text-sm badge-safe text-white">Safe</span>
+                    {% else %}
+                    <span class="px-3 py-1 rounded-full text-sm badge-phishing text-white">Potentially Phishing</span>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Email Body -->
+        <div class="card-glass rounded-2xl p-8 mb-6">
+            <h2 class="text-xl font-bold mb-6">Email Content</h2>
+            <div class="prose prose-invert max-w-none">
+                <div class="bg-gray-800/50 rounded-xl p-6 whitespace-pre-wrap text-gray-300 leading-relaxed">
+                    {{ modified_body or email.body or 'No content available' }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Attachments Section -->
+        {% if attachments %}
+        <div class="card-glass rounded-2xl p-8 mb-6">
+            <h2 class="text-xl font-bold mb-6">
+                <svg class="w-6 h-6 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13">
+                    </path>
+                </svg>
+                Attachments ({{ attachments|length }})
+            </h2>
+
+            <div class="grid md:grid-cols-2 gap-4">
+                {% for attachment in attachments %}
+                <div class="flex items-center p-4 bg-gray-800/50 rounded-xl hover:bg-gray-800/70 transition-colors">
+                    <div class="w-12 h-12 bg-gray-700 rounded-lg flex items-center justify-center mr-4">
+                        {% if attachment.content_type and 'image' in attachment.content_type %}
+                        <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
+                            </path>
+                        </svg>
+                        {% elif attachment.content_type and 'pdf' in attachment.content_type %}
+                        <svg class="w-6 h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z">
+                            </path>
+                        </svg>
+                        {% elif attachment.content_type and ('word' in attachment.content_type or 'document' in
+                        attachment.content_type) %}
+                        <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                            </path>
+                        </svg>
+                        {% else %}
+                        <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13">
+                            </path>
+                        </svg>
+                        {% endif %}
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="font-medium truncate">{{ attachment.filename }}</p>
+                        <p class="text-sm text-gray-400">{{ attachment.content_type or 'Unknown type' }}</p>
+                    </div>
+                    <div class="flex items-center space-x-2 ml-4">
+                        {% if attachment.sensitivity == 'sensitive' %}
+                        <span
+                            class="px-3 py-1 rounded-full text-xs bg-red-500/20 text-red-400 border border-red-500/50">Sensitive</span>
+                        {% else %}
+                        <span
+                            class="px-3 py-1 rounded-full text-xs bg-green-500/20 text-green-400 border border-green-500/50">Safe</span>
+                        {% endif %}
+
+                        <!-- Download Button -->
+                        <a href="{{ url_for('download_attachment', attachment_id=attachment.id) }}"
+                            class="p-2 bg-blue-600/20 hover:bg-blue-600/40 rounded-lg text-blue-400 transition-colors"
+                            title="Download">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4">
+                                </path>
+                            </svg>
+                        </a>
+
+                        <!-- Scan Button -->
+                        <button onclick="scanAttachment({{ attachment.id }}, this)"
+                            class="p-2 bg-purple-600/20 hover:bg-purple-600/40 rounded-lg text-purple-400 transition-colors"
+                            title="Scan with YARA">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z">
+                                </path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Scan Results Modal -->
+            <div id="scanResultModal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+                <div class="bg-gray-900 rounded-2xl p-8 max-w-md w-full mx-4 border border-gray-700">
+                    <h3 class="text-xl font-bold mb-4">YARA Scan Result</h3>
+                    <div id="scanResultContent"></div>
+                    <button onclick="closeScanModal()"
+                        class="mt-6 w-full py-3 bg-gray-700 hover:bg-gray-600 rounded-xl font-semibold transition-colors">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Feedback Section -->
+        <div class="card-glass rounded-2xl p-8">
+            <h2 class="text-xl font-bold mb-6">Provide Feedback</h2>
+            <p class="text-gray-400 mb-6">Help improve our detection by providing feedback on this classification.</p>
+
+            <form action="{{ url_for('submit_phishing_feedback', email_id=email.id) }}" method="POST">
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Correct Classification</label>
+                    <div class="flex space-x-4">
+                        <label class="flex items-center space-x-2 cursor-pointer">
+                            <input type="radio" name="correct_category" value="Safe" class="form-radio text-green-500">
+                            <span>Safe</span>
+                        </label>
+                        <label class="flex items-center space-x-2 cursor-pointer">
+                            <input type="radio" name="correct_category" value="Phishing"
+                                class="form-radio text-red-500">
+                            <span>Phishing</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Feedback Reason (Optional)</label>
+                    <textarea name="feedback_reason" rows="3"
+                        class="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none"
+                        placeholder="Why do you think this classification is incorrect?"></textarea>
+                </div>
+
+                <button type="submit"
+                    class="px-6 py-3 bg-gradient-to-r from-orange-600 to-red-600 rounded-xl font-semibold hover:shadow-lg hover:shadow-orange-500/50 transition duration-300">
+                    Submit Feedback
+                </button>
+            </form>
+        </div>
+    </div>
+
+    {% if email.explanation %}
+    <script>
+        // ===========================================
+        // Chart.js Configuration for Analysis Factors
+        // ===========================================
+        (function () {
+            'use strict';
+
+            // Parse factors from Jinja template
+            const factors = [
+                {% for factor_name, factor_value in email.explanation %}
+                { name: '{{ factor_name }}', value: { { factor_value } } } {% if not loop.last %}, {% endif %}
+        {% endfor %}
+            ];
+
+        // Color configuration based on risk level
+        const getColor = (value, opacity = 1) => {
+            const colors = {
+                high: { r: 239, g: 68, b: 68 },    // Red
+                medium: { r: 245, g: 158, b: 11 }, // Yellow
+                low: { r: 16, g: 185, b: 129 }     // Green
+            };
+
+            let color;
+            if (value > 0.5) color = colors.high;
+            else if (value > 0.3) color = colors.medium;
+            else color = colors.low;
+
+            return opacity < 1
+                ? `rgba(${color.r}, ${color.g}, ${color.b}, ${opacity})`
+                : `rgb(${color.r}, ${color.g}, ${color.b})`;
+        };
+
+        // Chart configuration
+        const chartConfig = {
+            type: 'bar',
+            data: {
+                labels: factors.map(f => f.name),
+                datasets: [{
+                    label: 'Risk Factor',
+                    data: factors.map(f => f.value * 100),
+                    backgroundColor: factors.map(f => getColor(f.value, 0.8)),
+                    borderColor: factors.map(f => getColor(f.value)),
+                    borderWidth: 1,
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: (context) => `${context.parsed.y.toFixed(1)}%`
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                        ticks: {
+                            color: 'rgba(255, 255, 255, 0.6)',
+                            callback: (value) => value + '%'
+                        }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: 'rgba(255, 255, 255, 0.6)' }
+                    }
+                }
+            }
+        };
+
+        // Initialize chart
+        const canvas = document.getElementById('factorsChart');
+        if (canvas) {
+            new Chart(canvas.getContext('2d'), chartConfig);
+        }
+        }) ();
+    </script>
+    {% endif %}
+
+    <!-- Attachment Scan Script -->
+    <script>
+        // ===========================================
+        // Attachment Scanner Module
+        // ===========================================
+        const AttachmentScanner = (function () {
+            'use strict';
+
+            // SVG Icons
+            const ICONS = {
+                spinner: `
+                    <svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>`,
+                shield: `
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                    </svg>`,
+                checkCircle: `
+                    <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>`,
+                warning: `
+                    <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                    </svg>`
+            };
+
+            // HTML Templates
+            const TEMPLATES = {
+                clean: `
+                    <div class="flex items-center space-x-3 text-green-400">
+                        ${ICONS.checkCircle}
+                        <div>
+                            <p class="font-bold text-lg">No Threats Detected</p>
+                            <p class="text-gray-400 text-sm">The file appears to be clean.</p>
+                        </div>
+                    </div>`,
+
+                threat: (matches) => `
+                    <div class="text-red-400">
+                        <div class="flex items-center space-x-3 mb-4">
+                            ${ICONS.warning}
+                            <div>
+                                <p class="font-bold text-lg">Threat Detected!</p>
+                                <p class="text-gray-400 text-sm">YARA rules matched this file.</p>
+                            </div>
+                        </div>
+                        <div class="bg-red-900/30 rounded-lg p-4 border border-red-500/50">
+                            <p class="font-semibold mb-2">Matched Rules:</p>
+                            <ul class="list-disc list-inside text-sm">
+                                ${matches.map(m => `<li>${escapeHtml(m)}</li>`).join('')}
+                            </ul>
+                        </div>
+                    </div>`,
+
+                error: (message) => `
+                    <div class="text-yellow-400">
+                        <p class="font-bold">Scan Error</p>
+                        <p class="text-gray-400 text-sm">${escapeHtml(message || 'Unable to scan file.')}</p>
+                    </div>`
+            };
+
+            // Utility: Escape HTML to prevent XSS
+            function escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            // Get DOM elements
+            function getElements() {
+                return {
+                    modal: document.getElementById('scanResultModal'),
+                    content: document.getElementById('scanResultContent')
+                };
+            }
+
+            // Set button state
+            function setButtonState(button, loading) {
+                button.disabled = loading;
+                button.innerHTML = loading ? ICONS.spinner : ICONS.shield;
+            }
+
+            // Display scan result in modal
+            function showResult(data) {
+                const { modal, content } = getElements();
+
+                if (data.status === 'success') {
+                    content.innerHTML = data.result.status === 'clean'
+                        ? TEMPLATES.clean
+                        : TEMPLATES.threat(data.result.matches || []);
+                } else {
+                    content.innerHTML = TEMPLATES.error(data.message);
+                }
+
+                modal.classList.remove('hidden');
+            }
+
+            // Main scan function
+            async function scan(attachmentId, button) {
+                setButtonState(button, true);
+
+                try {
+                    const response = await fetch(`/phishing/attachment/${attachmentId}/scan`);
+                    const data = await response.json();
+                    showResult(data);
+                } catch (error) {
+                    console.error('Scan error:', error);
+                    showResult({ status: 'error', message: 'Network error occurred.' });
+                } finally {
+                    setButtonState(button, false);
+                }
+            }
+
+            // Close modal
+            function closeModal() {
+                const { modal } = getElements();
+                if (modal) {
+                    modal.classList.add('hidden');
+                }
+            }
+
+            // Initialize event listeners
+            function init() {
+                const { modal } = getElements();
+                if (modal) {
+                    modal.addEventListener('click', (e) => {
+                        if (e.target === modal) closeModal();
+                    });
+
+                    // Close on Escape key
+                    document.addEventListener('keydown', (e) => {
+                        if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+                            closeModal();
+                        }
+                    });
+                }
+            }
+
+            // Auto-initialize
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', init);
+            } else {
+                init();
+            }
+
+            // Public API
+            return { scan, closeModal };
+        })();
+
+        // Global functions for onclick handlers
+        function scanAttachment(attachmentId, button) {
+            AttachmentScanner.scan(attachmentId, button);
+        }
+
+        function closeScanModal() {
+            AttachmentScanner.closeModal();
+        }
+    </script>
+
+</body>
+
+</html>

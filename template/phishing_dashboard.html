@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phishing Detection Dashboard - DLP</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-primary: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%);
+            --bg-card: rgba(30, 30, 50, 0.9);
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0c0;
+            --text-tertiary: #6c6c8a;
+            --shadow: rgba(0, 0, 0, 0.4);
+            --btn-primary: #6366f1;
+            --btn-hover: #4f46e5;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --accent-yellow: #f59e0b;
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background: var(--bg-primary);
+            min-height: 100vh;
+            color: var(--text-primary);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            background: var(--btn-primary);
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn:hover {
+            background: var(--btn-hover);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 25px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stat-card .icon {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .stat-card .value {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .stat-card .label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-top: 5px;
+        }
+
+        .stat-total .icon { color: #6366f1; }
+        .stat-safe .icon { color: var(--accent-green); }
+        .stat-safe .value { color: var(--accent-green); }
+        .stat-phishing .icon { color: var(--accent-red); }
+        .stat-phishing .value { color: var(--accent-red); }
+        .stat-review .icon { color: var(--accent-yellow); }
+        .stat-review .value { color: var(--accent-yellow); }
+
+        /* Filter Bar */
+        .filter-bar {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .filter-bar label {
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .filter-bar select {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(0, 0, 0, 0.3);
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+
+        .user-info {
+            margin-left: auto;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Email Grid */
+        .email-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        .email-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: var(--transition);
+            border-left: 4px solid var(--accent-green);
+        }
+
+        .email-card.phishing {
+            border-left-color: var(--accent-red);
+        }
+
+        .email-card.needs-review {
+            border-left-color: var(--accent-yellow);
+        }
+
+        .email-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .email-header {
+            padding: 15px 20px;
+            background: rgba(0, 0, 0, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .category-badge {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-safe {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--accent-green);
+        }
+
+        .badge-phishing {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--accent-red);
+        }
+
+        .confidence {
+            font-size: 0.85rem;
+            color: var(--text-tertiary);
+        }
+
+        .email-body {
+            padding: 20px;
+        }
+
+        .email-subject {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .email-from {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .email-preview {
+            color: var(--text-tertiary);
+            font-size: 0.9rem;
+            line-height: 1.6;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+
+        .email-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-small {
+            padding: 8px 16px;
+            font-size: 0.85rem;
+        }
+
+        /* Flash Messages */
+        .flash-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .flash-message {
+            background: var(--bg-card);
+            padding: 15px 25px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border-left: 4px solid var(--accent-green);
+            animation: slideIn 0.3s ease;
+        }
+
+        .flash-message.error {
+            border-left-color: var(--accent-red);
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(100px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px;
+            color: var(--text-tertiary);
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .empty-state h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: var(--text-secondary);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+
+            .header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .email-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .filter-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .user-info {
+                margin-left: 0;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Flash Messages -->
+        <div class="flash-container">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="flash-message {{ 'error' if category == 'error' else '' }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        </div>
+
+        <!-- Header -->
+        <div class="header">
+            <h1><i class="fas fa-shield-alt"></i> Phishing Detection Dashboard</h1>
+            <div class="header-actions">
+                <a href="{{ url_for('phishing_detection') }}" class="btn btn-secondary">
+                    <i class="fas fa-plus"></i> Scan More Emails
+                </a>
+                <a href="{{ url_for('index') }}" class="btn btn-secondary">
+                    <i class="fas fa-home"></i> Home
+                </a>
+            </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card stat-total">
+                <div class="icon"><i class="fas fa-envelope"></i></div>
+                <div class="value">{{ stats.total }}</div>
+                <div class="label">Total Emails</div>
+            </div>
+            <div class="stat-card stat-safe">
+                <div class="icon"><i class="fas fa-check-circle"></i></div>
+                <div class="value">{{ stats.safe }}</div>
+                <div class="label">Safe Emails</div>
+            </div>
+            <div class="stat-card stat-phishing">
+                <div class="icon"><i class="fas fa-exclamation-triangle"></i></div>
+                <div class="value">{{ stats.phishing }}</div>
+                <div class="label">Phishing Detected</div>
+            </div>
+            <div class="stat-card stat-review">
+                <div class="icon"><i class="fas fa-question-circle"></i></div>
+                <div class="value">{{ stats.review }}</div>
+                <div class="label">Needs Review</div>
+            </div>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="filter-bar">
+            <label><i class="fas fa-filter"></i> Filter:</label>
+            <select id="category-filter">
+                <option value="all">All Emails</option>
+                <option value="Safe">Safe Only</option>
+                <option value="Phishing">Phishing Only</option>
+                <option value="needs-review">Needs Review</option>
+            </select>
+            <div class="user-info">
+                <i class="fas fa-user-circle"></i>
+                <span>{{ user_email }}</span>
+            </div>
+        </div>
+
+        <!-- Email Grid -->
+        <div class="email-grid" id="email-grid">
+            {% if emails %}
+                {% for email in emails %}
+                    <div class="email-card {{ email.category|lower }} {% if email.needs_review == 1 %}needs-review{% endif %}"
+                         data-category="{{ email.category }}"
+                         data-needs-review="{{ email.needs_review }}">
+                        <div class="email-header">
+                            <span class="category-badge {{ 'badge-phishing' if email.category == 'Phishing' else 'badge-safe' }}">
+                                {{ email.category }}
+                            </span>
+                            <span class="confidence">{{ '%.1f' | format(email.confidence_score) }}% confidence</span>
+                        </div>
+                        <div class="email-body">
+                            <h3 class="email-subject">{{ email.subject }}</h3>
+                            <div class="email-from">
+                                <i class="fas fa-user"></i>
+                                {{ email.sender }}
+                            </div>
+                            <p class="email-preview">{{ email.body[:200] }}{% if email.body|length > 200 %}...{% endif %}</p>
+                            <div class="email-actions">
+                                <a href="{{ url_for('phishing_email_details', email_id=email.id) }}" class="btn btn-small">
+                                    <i class="fas fa-eye"></i> View Details
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-state" style="grid-column: 1 / -1;">
+                    <i class="fas fa-inbox"></i>
+                    <h3>No emails analyzed yet</h3>
+                    <p>Connect your email account to start scanning for phishing attempts.</p>
+                    <a href="{{ url_for('phishing_detection') }}" class="btn" style="margin-top: 20px;">
+                        <i class="fas fa-envelope"></i> Connect Email
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        // Filter functionality
+        document.getElementById('category-filter').addEventListener('change', function() {
+            const filter = this.value;
+            const cards = document.querySelectorAll('.email-card');
+            
+            cards.forEach(card => {
+                const category = card.dataset.category;
+                const needsReview = card.dataset.needsReview === '1';
+                
+                if (filter === 'all') {
+                    card.style.display = 'block';
+                } else if (filter === 'needs-review') {
+                    card.style.display = needsReview ? 'block' : 'none';
+                } else {
+                    card.style.display = category === filter ? 'block' : 'none';
+                }
+            });
+        });
+
+        // Auto-hide flash messages
+        setTimeout(() => {
+            document.querySelectorAll('.flash-message').forEach(msg => {
+                msg.style.opacity = '0';
+                setTimeout(() => msg.remove(), 300);
+            });
+        }, 5000);
+    </script>
+</body>
+</html>
