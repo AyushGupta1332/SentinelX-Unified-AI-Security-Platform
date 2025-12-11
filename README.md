@@ -49,6 +49,12 @@ Built as a web application with real-time monitoring capabilities, this system p
 
 **Note** | Only 3 projects are available for now. I am working on integrating the rest of the projects.
 
+### 1. Download Required Files
+
+> ⚠️ **Important:** The ML models and YARA rules are not included in this repository due to their large size. You must download them separately.
+
+📥 **[Download Required Project Files from Google Drive](https://drive.google.com/file/d/1xSV0mw6QRrco0Q39Tj1BKUCUTUi1_MnL/view?usp=sharing)**
+
 ---
 
 ## ✨ Features
